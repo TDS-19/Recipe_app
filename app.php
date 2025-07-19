@@ -89,6 +89,29 @@ function Voltar(){
 
 
 
+////////////////////////
+// Funções Auxiliares //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function Quant_Ingre($con){
+    seeIngredientes($con, false);
+    echo " [0] - Outro Ingrediente";
+    $input = readline("");
+    if ($input==0){
+        $ingrediente = readline("Ingrediente: ");
+        $quantidade = readline("Quantidade: ");
+        $sql_assoc = "INSERT INTO receitas_ingrediente (id_ingrediente, quantidade) VALUES ($ingrediente, $quantidade)";
+         if (mysqli_query($con, $sql_assoc)){
+                echo "Sucesso: Associação receita_categoria\n";
+                    } else {
+                    echo "Erro: Associação receita_categoria\n";
+                }
+    }else{
+        return;   
+    }
+}
+
+
 
 ///////////////////
 // CRUD - CREATE //
@@ -108,15 +131,22 @@ function addReceita($con){
     $categorias_string = readline("Categorias (separado por vígulas): ");
     $categorias = explode(",", $categorias_string);
     //Ingredientes e Quantidades em string
-
-
+    Quant_Ingre($con);
     //corpo da receita (deixei para o fim por razões de interface com o utilizador)
     $descricao = readline("Receita: ");
-
     //Associações e Inserts
+    $id_receita = mysqli_insert_id($con);
     $sql = "INSERT INTO receitas (nome, descricao, prep, dose) VALUES ('$nome', '$descricao', '$prep','$dose')";
-    $sql = "INSERT INTO categorias (id_categoria) VALUES ('$categorias')";
-
+    foreach ($categorias as $id_categoria){
+        if ($id_categoria > 0){
+        $sql_assoc = "INSERT INTO receita_categoria (id_receita, id_categoria) VALUES ('$id_receita', '$id_categoria')";
+            if (mysqli_query($con, $sql_assoc)){
+                echo "Sucesso: Associação receita_categoria\n";
+                    } else {
+                    echo "Erro: Associação receita_categoria\n";
+                }
+            }
+        }
 
     //Verificações
     if (mysqli_query($con, $sql)){
