@@ -97,11 +97,9 @@ function Voltar(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//Adicionar nova receita  (INCOMPLETO)
+//Adicionar nova receita
 
 function addReceita($con){
-    $id_receita = mysqli_insert_id($con);
-
     //adicionar variaveis da tabela Receita
     $nome = readline("Titulo: ");
     $prep = readline("Tempo de Preparação [HH:mm:ss]: ");
@@ -113,6 +111,7 @@ function addReceita($con){
     $categorias_string = readline("\nCategorias (separado por vígulas): ");
     $categorias = explode(",", $categorias_string);
     foreach ($categorias as $id_categoria){
+    $id_receita = mysqli_insert_id($con);
             if ($id_categoria > 0){
             $sql_assoc = "INSERT INTO receita_categoria (id_receita, id_categoria) VALUES ('$id_receita', '$id_categoria')";
                 if (mysqli_query($con, $sql_assoc)){
@@ -122,7 +121,7 @@ function addReceita($con){
                     }
                 }
             }
-
+            
     //Ingredientes e Quantidades em string
     $sair = false;
     while(!$sair){
@@ -145,6 +144,7 @@ function addReceita($con){
                             echo "Sucesso: Associação receita_ingrediente\n";
                         } else {
                             echo "Erro: Associação receita_ingrediente\n";}
+                    break;
                 default:
                     echo "Erro: Opção Menu Inválida";
                     break;
@@ -289,7 +289,7 @@ function upReceita($con, $voltar){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//apagar receita sem apagar ingrdientes ou categorias (INCOMPLETO)
+//apagar receita sem apagar ingredientes ou categorias 
 function delReceita($con){
     seeReceita($con, false);
     $id = readline("ID da Receita que Deseja Apagar: ");
@@ -303,9 +303,6 @@ function delReceita($con){
     mysqli_query($con, $sql);
     echo "Sucesso: Receita Removida";  
 }
-
-
-
 
 //encerrar a conexão
 $bye = mysqli_close($con);
