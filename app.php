@@ -29,7 +29,7 @@ switch ($menu_inicial) {
         break;
     case 1:
         $input = "";
-        echo "---------------------------------------------------------\n";
+        echo "\n---------------------------------------------------------\n";
         echo "[1]\t\t -\t\t Nova Receita\n\n";
         echo "[2]\t\t -\t\t Lista de Receitas\n\n";
         echo "[3]\t\t -\t\t Atualizar Receita Existente\n\n";
@@ -45,7 +45,7 @@ switch ($menu_inicial) {
         }else if ($input == "3") {
             upReceita($con, true);
             break;
-        }else if ($input == "3") {
+        }else if ($input == "4") {
             delReceita($con, true);
             break;
         }else{
@@ -104,7 +104,9 @@ function addReceita($con){
     $nome = readline("Titulo: ");
     $prep = readline("Tempo de Preparação [HH:mm:ss]: ");
     $dose = readline("Dose Esperada: ");
-    
+    $descricao = readline("Receita: ");
+    $sql = "INSERT INTO receitas (nome, prep, dose, descricao) VALUES ('$nome', '$prep', $dose, '$descricao')";
+
     //Categorias em string
     seeCategorias($con, false);
     echo "\n---------------------------------------------------------\n";
@@ -113,7 +115,7 @@ function addReceita($con){
     foreach ($categorias as $id_categoria){
     $id_receita = mysqli_insert_id($con);
             if ($id_categoria > 0){
-            $sql_assoc = "INSERT INTO receita_categoria (id_receita, id_categoria) VALUES ('$id_receita', '$id_categoria')";
+            $sql_assoc = "INSERT INTO receita_categoria (id_receita, id_categoria) VALUES ($id_receita, '$id_categoria')";
                 if (mysqli_query($con, $sql_assoc)){
                     echo "Sucesso: Associação receita_categoria\n";
                         } else {
@@ -121,7 +123,7 @@ function addReceita($con){
                     }
                 }
             }
-            
+
     //Ingredientes e Quantidades em string
     $sair = false;
     while(!$sair){
@@ -139,7 +141,7 @@ function addReceita($con){
                 case 1:
                     $id_ingrediente = readline("\nIngrediente: ");
                     $quantidade = readline("Quantidade: ");
-                    $sql_assoc = "INSERT INTO receita_ingrediente (id_ingrediente, quantidade) VALUES ($id_ingrediente, $quantidade) WHERE id_receita = $id_receita";
+                    $sql_assoc = "INSERT INTO receita_ingrediente (id_ingrediente, quantidade) VALUES ('$id_ingrediente', '$quantidade') WHERE id_receita = $id_receita";
                         if (mysqli_query($con, $sql_assoc)){
                             echo "Sucesso: Associação receita_ingrediente\n";
                         } else {
@@ -150,11 +152,7 @@ function addReceita($con){
                     break;
             }                 
         }
-        
-    //Corpo da receita (deixei para o fim por razões de interface com o utilizador)
-    $descricao = readline("Receita: ");
-    $sql = "INSERT INTO receitas (nome, descricao, prep, dose) VALUES ('$nome', '$descricao', '$prep','$dose')";
-    
+
     //Verificações
     if (mysqli_query($con, $sql)){
         echo "Sucesso: Inserir Receita\n";
@@ -168,22 +166,34 @@ function addReceita($con){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//lista de todas a receitas com Ingredientes e Quantidade
+//lista de todas a receitas
 function seeReceita($con, $voltar){
-    $sql = "SELECT receitas.id_receita, receitas.nome, receitas.descricao, receitas.prep, receitas.dose, receita_ingrediente.id_ingrediente, receita_ingrediente.quantidade FROM receitas
-    INNER JOIN receita_ingrediente
-    ON receitas.id_receita = receita_ingrediente.id_receita";
-    $resultado = mysqli_query($con, $sql);
+    $sql = "SELECT receitas.id_receita,
+        receitas.nome,
+        receitas.descricao,
+        receitas.prep,
+        receitas.dose, 
+        receita_ingrediente.id_ingrediente, 
+        receita_ingrediente.quantidade,
+        receita_categoria.id_categoria
+        FROM receitas
+        LEFT JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
+        LEFT JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
+        GROUP BY receitas.id_receita";
+        $resultado = mysqli_query($con, $sql);
+
     while ($linha = mysqli_fetch_assoc($resultado)){
-        echo "---------------------------------------------------------\n";
-        echo "\t\nID:  " . $linha["id_receita"];
-        echo "\t\nTitulo:  " . $linha["nome"];
-        echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
-        echo "\t\nDose Esperada:  " . $linha["dose"];
-        echo "\t\nIngredientes:  " . $linha["id_ingrediente"] . $linha["quantidade"];
-        echo "\t\n\nReceita:  " . $linha["descricao"];
-        echo "---------------------------------------------------------\n";
-    }if ($voltar){
+            echo "\n---------------------------------------------------------\n";
+            echo "\t\nID: " . $linha["id_receita"];
+            echo "\t\nTitulo: " . $linha["nome"];
+            echo "\t\nCategorias:\n" . "\t- " . $linha["id_categoria"];
+            echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
+            echo "\t\nDose Esperada: " . $linha["dose"];
+            echo "\t\nIngredientes:\n" . "\t- " . $linha["quantidade"] . " " . $linha["id_ingrediente"];
+            echo "\t\n\nReceita:\n\n" . $linha["descricao"];
+            echo "\n---------------------------------------------------------\n";
+         
+        }if ($voltar){
         Voltar();
     }
 }
@@ -207,8 +217,8 @@ function seeCategorias($con, $voltar){
     $resultado = mysqli_query($con, $sql);
         while ($linha = mysqli_fetch_assoc($resultado)){
         echo "---------------------------------------------------------\n";
-        echo "\t\nCategoria:  " . $linha["id_categoria"];
-        echo "\t\nDescrição:  " . $linha["descricao"];
+        echo "\t\nCategoria: " . $linha["id_categoria"];
+        echo "\t\nDescrição:\n" . $linha["descricao"];
     }if ($voltar){
         Voltar();
     }
@@ -274,9 +284,10 @@ function upReceita($con, $voltar){
             default:
                 echo "Erro: Opção Menu Inválida";
                 break;
-            }       
+            }  
+
         mysqli_query($con, $sql);
-        echo "Successo: Livro Atualizado.";
+        echo "Successo: Receita Atualizada.";
         } if ($voltar){
         Voltar();
         } 
@@ -292,16 +303,21 @@ function upReceita($con, $voltar){
 //apagar receita sem apagar ingredientes ou categorias 
 function delReceita($con){
     seeReceita($con, false);
-    $id = readline("ID da Receita que Deseja Apagar: ");
-    $sql = "SELECT id FROM receitas WHERE id = $id";
-    $valid = mysqli_query($con, $sql);
-    if (mysqli_num_rows ($valid) == 0){
-        echo ("Erro: Receita Não Encontrada");
+    $id = readline("ID da Receita que deseja remover: ");
+    $sql = "SELECT id_receita FROM receitas WHERE id_receita = $id";
+    $verificacao = mysqli_query($con, $sql);
+    if (mysqli_num_rows ($verificacao) == 0){
+        echo ("Erro: Receita não encontrada");
         return;
     }
-    $sql = "DELETE FROM receitas WHERE id = $id";
+    //apagar associações
+    $sql = "DELETE FROM receita_categoria WHERE id_receita = $id";
     mysqli_query($con, $sql);
-    echo "Sucesso: Receita Removida";  
+    $sql = "DELETE FROM receita_ingrediente WHERE id_receita = $id";
+    mysqli_query($con, $sql);
+    $sql = "DELETE FROM receitas WHERE id_receita= $id";
+    mysqli_query($con, $sql);
+    echo "Sucesso: Receita Removida";
 }
 
 //encerrar a conexão
