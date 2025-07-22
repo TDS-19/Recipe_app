@@ -17,15 +17,14 @@ while(!$sair){
         echo "\n---------------------------------------------------------\n";
         echo "[1]\t\t -\t\t Receitas\n\n";
         echo "[2]\t\t -\t\t Ingredientes\n\n";
-        echo "[3]\t\t -\t\t Categorias\n\n";
-        echo "---------------------------------------------------------\n";
-        echo "[0]\t\t -\t\t Sair\n";
-        echo "---------------------------------------------------------\n";
+        echo "[3]\t\t -\t\t Categorias";
+        echo "\n---------------------------------------------------------\n";
+        echo "[0]\t\t -\t\t Sair";
+        echo "\n---------------------------------------------------------\n";
 $menu_inicial = readline("R: ");
 
 switch ($menu_inicial) {
     case 0:
-        echo "Programa Terminado";
         $sair = true;
         break;
     case 1:
@@ -34,8 +33,8 @@ switch ($menu_inicial) {
         echo "[1]\t\t -\t\t Nova Receita\n\n";
         echo "[2]\t\t -\t\t Lista de Receitas\n\n";
         echo "[3]\t\t -\t\t Atualizar Receita Existente\n\n";
-        echo "[4]\t\t -\t\t Apagar Receita\n\n";
-        echo "---------------------------------------------------------\n";
+        echo "[4]\t\t -\t\t Apagar Receita";
+        echo "\n---------------------------------------------------------\n";
         $input = readline("\nR: ");
         if ($input == "1") {
             addReceita($con);
@@ -88,7 +87,6 @@ function Voltar(){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 ////////////////////////
 // Funções Auxiliares //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -99,52 +97,64 @@ function Voltar(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//adicionar nova receita  (INCOMPLETO)
+//Adicionar nova receita  (INCOMPLETO)
 
 function addReceita($con){
+    $id_receita = mysqli_insert_id($con);
+
     //adicionar variaveis da tabela Receita
     $nome = readline("Titulo: ");
     $prep = readline("Tempo de Preparação [HH:mm:ss]: ");
     $dose = readline("Dose Esperada: ");
-    $id_receita = mysqli_insert_id($con);
-
+    
     //Categorias em string
     seeCategorias($con, false);
-    echo "---------------------------------------------------------\n";
+    echo "\n---------------------------------------------------------\n";
     $categorias_string = readline("\nCategorias (separado por vígulas): ");
     $categorias = explode(",", $categorias_string);
-
-    //Ingredientes e Quantidades em string
-    do {
-    seeIngredientes($con, false);
-    echo "\n---------------------------------------------------------\n";
-    echo "[1]\t\t -\t\t Adicionar Ingrediente\n";
-    echo "[0]\t\t -\t\t Continuar\n";
-    $input = readline("");
-        $ingrediente = readline("Ingrediente: ");
-        $quantidade = readline("Quantidade: ");
-        $sql_assoc = "INSERT INTO receitas_ingrediente (id_ingrediente, quantidade) VALUES ($ingrediente, $quantidade) WHERE id_receita = $id_receita";
-         if (mysqli_query($con, $sql_assoc)){
-                echo "Sucesso: Associação receita_categoria\n";
-                    } else {
-                    echo "Erro: Associação receita_categoria\n";}
-    }while ($input == "1");
-
-    //corpo da receita (deixei para o fim por razões de interface com o utilizador)
-    $descricao = readline("Receita: ");
-
-    //Associações e Inserts
-    $sql = "INSERT INTO receitas (nome, descricao, prep, dose) VALUES ('$nome', '$descricao', '$prep','$dose')";
     foreach ($categorias as $id_categoria){
-        if ($id_categoria > 0){
-        $sql_assoc = "INSERT INTO receita_categoria (id_receita, id_categoria) VALUES ('$id_receita', '$id_categoria')";
-            if (mysqli_query($con, $sql_assoc)){
-                echo "Sucesso: Associação receita_categoria\n";
-                    } else {
-                    echo "Erro: Associação receita_categoria\n";
+            if ($id_categoria > 0){
+            $sql_assoc = "INSERT INTO receita_categoria (id_receita, id_categoria) VALUES ('$id_receita', '$id_categoria')";
+                if (mysqli_query($con, $sql_assoc)){
+                    echo "Sucesso: Associação receita_categoria\n";
+                        } else {
+                        echo "Erro: Associação receita_categoria\n";
+                    }
                 }
             }
+
+    //Ingredientes e Quantidades em string
+    $sair = false;
+    while(!$sair){
+        seeIngredientes($con, false);
+        echo "\n---------------------------------------------------------\n";
+        echo "[1]\t\t -\t\t Adicionar Ingrediente\n";
+        echo "[0]\t\t -\t\t Continuar\n";
+        echo "---------------------------------------------------------\n";
+        $input = readline("R: ");
+
+            switch ($input) {
+                case 0:
+                    $sair = true;
+                    break;
+                case 1:
+                    $id_ingrediente = readline("\nIngrediente: ");
+                    $quantidade = readline("Quantidade: ");
+                    $sql_assoc = "INSERT INTO receita_ingrediente (id_ingrediente, quantidade) VALUES ($id_ingrediente, $quantidade) WHERE id_receita = $id_receita";
+                        if (mysqli_query($con, $sql_assoc)){
+                            echo "Sucesso: Associação receita_ingrediente\n";
+                        } else {
+                            echo "Erro: Associação receita_ingrediente\n";}
+                default:
+                    echo "Erro: Opção Menu Inválida";
+                    break;
+            }                 
         }
+        
+    //Corpo da receita (deixei para o fim por razões de interface com o utilizador)
+    $descricao = readline("Receita: ");
+    $sql = "INSERT INTO receitas (nome, descricao, prep, dose) VALUES ('$nome', '$descricao', '$prep','$dose')";
+    
     //Verificações
     if (mysqli_query($con, $sql)){
         echo "Sucesso: Inserir Receita\n";
@@ -152,8 +162,6 @@ function addReceita($con){
         echo "Erro: Inserir Receita\n";
     }
 }
-
-
 
 ///////////////////
 //  CRUD - READ  //
@@ -180,7 +188,6 @@ function seeReceita($con, $voltar){
     }
 }
 
-
 //lista de todos os Ingredientes
 function seeIngredientes($con, $voltar){
     $sql = "SELECT id_ingrediente FROM ingredientes";
@@ -206,7 +213,6 @@ function seeCategorias($con, $voltar){
         Voltar();
     }
 }
-
 
 ///////////////////
 // CRUD - UPDATE //
@@ -304,7 +310,7 @@ function delReceita($con){
 //encerrar a conexão
 $bye = mysqli_close($con);
 if ($bye){
-    echo "Programa Terminado!\n";
+    echo "\nPrograma Terminado!\n";
 } else {
-    echo "Erro a encerrar conexão com a base de dados\n";
+    echo "\nErro a encerrar conexão com a base de dados\n";
 }
