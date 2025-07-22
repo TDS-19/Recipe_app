@@ -104,36 +104,36 @@ function Voltar(){
 function addReceita($con){
     //adicionar variaveis da tabela Receita
     $nome = readline("Titulo: ");
-    $prep = readline("Tempo de Preparação: ");
+    $prep = readline("Tempo de Preparação [HH:mm:ss]: ");
     $dose = readline("Dose Esperada: ");
     $id_receita = mysqli_insert_id($con);
 
     //Categorias em string
     seeCategorias($con, false);
-    $categorias_string = readline("Categorias (separado por vígulas): ");
+    echo "---------------------------------------------------------\n";
+    $categorias_string = readline("\nCategorias (separado por vígulas): ");
     $categorias = explode(",", $categorias_string);
 
     //Ingredientes e Quantidades em string
+    do {
     seeIngredientes($con, false);
-    echo " [0] - Adicionar Ingrediente";
-    echo " [Any Key] - Adicionar Ingrediente";
+    echo "\n---------------------------------------------------------\n";
+    echo "[1]\t\t -\t\t Adicionar Ingrediente\n";
+    echo "[0]\t\t -\t\t Continuar\n";
     $input = readline("");
-    if ($input==0){
         $ingrediente = readline("Ingrediente: ");
         $quantidade = readline("Quantidade: ");
         $sql_assoc = "INSERT INTO receitas_ingrediente (id_ingrediente, quantidade) VALUES ($ingrediente, $quantidade) WHERE id_receita = $id_receita";
          if (mysqli_query($con, $sql_assoc)){
                 echo "Sucesso: Associação receita_categoria\n";
                     } else {
-                    echo "Erro: Associação receita_categoria\n";
-                }
-    }else{
-        return;   
-    }
+                    echo "Erro: Associação receita_categoria\n";}
+    }while ($input == "1");
+
     //corpo da receita (deixei para o fim por razões de interface com o utilizador)
     $descricao = readline("Receita: ");
+
     //Associações e Inserts
-    
     $sql = "INSERT INTO receitas (nome, descricao, prep, dose) VALUES ('$nome', '$descricao', '$prep','$dose')";
     foreach ($categorias as $id_categoria){
         if ($id_categoria > 0){
@@ -145,7 +145,6 @@ function addReceita($con){
                 }
             }
         }
-
     //Verificações
     if (mysqli_query($con, $sql)){
         echo "Sucesso: Inserir Receita\n";
@@ -171,7 +170,7 @@ function seeReceita($con, $voltar){
         echo "---------------------------------------------------------\n";
         echo "\t\nID:  " . $linha["id_receita"];
         echo "\t\nTitulo:  " . $linha["nome"];
-        echo "\t\nTempo de Preparação [HH:mm]:  " . $linha["prep"];
+        echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
         echo "\t\nDose Esperada:  " . $linha["dose"];
         echo "\t\nIngredientes:  " . $linha["id_ingrediente"] . $linha["quantidade"];
         echo "\t\n\nReceita:  " . $linha["descricao"];
