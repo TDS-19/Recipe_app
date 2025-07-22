@@ -93,25 +93,6 @@ function Voltar(){
 // Funções Auxiliares //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function Quant_Ingre($con){
-    seeIngredientes($con, false);
-    echo " [0] - Outro Ingrediente";
-    $input = readline("");
-    if ($input==0){
-        $ingrediente = readline("Ingrediente: ");
-        $quantidade = readline("Quantidade: ");
-        $sql_assoc = "INSERT INTO receitas_ingrediente (id_ingrediente, quantidade) VALUES ($ingrediente, $quantidade)";
-         if (mysqli_query($con, $sql_assoc)){
-                echo "Sucesso: Associação receita_categoria\n";
-                    } else {
-                    echo "Erro: Associação receita_categoria\n";
-                }
-    }else{
-        return;   
-    }
-}
-
-
 
 ///////////////////
 // CRUD - CREATE //
@@ -125,17 +106,34 @@ function addReceita($con){
     $nome = readline("Titulo: ");
     $prep = readline("Tempo de Preparação: ");
     $dose = readline("Dose Esperada: ");
+    $id_receita = mysqli_insert_id($con);
 
     //Categorias em string
     seeCategorias($con, false);
     $categorias_string = readline("Categorias (separado por vígulas): ");
     $categorias = explode(",", $categorias_string);
+
     //Ingredientes e Quantidades em string
-    Quant_Ingre($con);
+    seeIngredientes($con, false);
+    echo " [0] - Adicionar Ingrediente";
+    echo " [Any Key] - Adicionar Ingrediente";
+    $input = readline("");
+    if ($input==0){
+        $ingrediente = readline("Ingrediente: ");
+        $quantidade = readline("Quantidade: ");
+        $sql_assoc = "INSERT INTO receitas_ingrediente (id_ingrediente, quantidade) VALUES ($ingrediente, $quantidade) WHERE id_receita = $id_receita";
+         if (mysqli_query($con, $sql_assoc)){
+                echo "Sucesso: Associação receita_categoria\n";
+                    } else {
+                    echo "Erro: Associação receita_categoria\n";
+                }
+    }else{
+        return;   
+    }
     //corpo da receita (deixei para o fim por razões de interface com o utilizador)
     $descricao = readline("Receita: ");
     //Associações e Inserts
-    $id_receita = mysqli_insert_id($con);
+    
     $sql = "INSERT INTO receitas (nome, descricao, prep, dose) VALUES ('$nome', '$descricao', '$prep','$dose')";
     foreach ($categorias as $id_categoria){
         if ($id_categoria > 0){
