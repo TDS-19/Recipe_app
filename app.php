@@ -254,7 +254,7 @@ function seeReceitas($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        GROUP BY receitas.id_receita";
+        ORDER BY receitas.id_receita";
         $resultado = mysqli_query($con, $sql);
    
     $receita_atual = NULL;
@@ -264,20 +264,22 @@ function seeReceitas($con, $voltar){
 
     while ($linha = mysqli_fetch_assoc($resultado)){
         $id = $linha["id_receita"];
-
-        if($id != $receita_atual ){
+    
+        if($id != $receita_atual){
             if($receita_atual != NULL){
-                echo "\t\nCategorias:\n" . "\t-" .  implode($categoria) . "\n";
-                echo "\t\nIngredientes:\n" . "\t-" .  implode($quantidade) . " " . implode($ingrediente) . "\n";
+            echo "\t\nCategorias:\n";
+            echo "\t-" .  implode(" ", $categoria) . "\n";
+            echo "\t\nIngredientes:\n";
+            echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
             }
             echo "\n---------------------------------------------------------\n";
             echo "\t\nID: " . $linha["id_receita"];
             echo "\t\nTitulo: " . $linha["nome"];
             echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
             echo "\t\nDose Esperada: " . $linha["dose"];
-            echo "\t\n\nReceita:\n\n";
-            echo "\n " . $linha["descricao"];
-            echo "\n";
+            echo "\t\nReceita: ";
+            echo "\n" . $linha["descricao"];
+            echo "\n---------------------------------------------------------\n";
             $receita_atual = $id;
             $categoria = [];
             $ingrediente = [];
@@ -286,11 +288,12 @@ function seeReceitas($con, $voltar){
         $categoria[] = $linha["id_categoria"];
         $ingrediente [] = $linha["id_ingrediente"];
         $quantidade [] = $linha["quantidade"];
-        
-    }
-    if ($receita_atual != null){
-        echo "\t\nCategorias:\n" . "\t-" .  implode($categoria, ) . "\n";
-        echo "\t\nIngredientes:\n" . "\t-" .  implode($quantidade) .  implode($ingrediente) . "\n";
+            
+    }if ($receita_atual != NULL){
+        echo "\t\nCategorias:\n";
+        echo "\t-" .  implode(" ", $categoria) . "\n";
+        echo "\t\nIngredientes:\n";
+        echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
     }
          
     if ($voltar){
