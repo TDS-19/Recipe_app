@@ -514,23 +514,51 @@ function procurarCategoria($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        GROUP BY receitas.id_receita WHERE receita_categoria.id_categoria LIKE '%$categoria%'";
+        ORDER BY receitas.id_receita WHERE receita_categoria.id_categoria LIKE '%$categoria%'";
 
     $resultado = mysqli_query($con, $sql);
     if (mysqli_num_rows($resultado) == 0){
             echo "Erro: Receita Não Encontrada";
             return;
     }
-        while ($linha = mysqli_fetch_assoc($resultado)){
-        echo "---------------------------------------------------------\n";
-        echo "\n[Titulo:  " . $linha["nome"];
-        echo "\nTempo de Preparação:  " . $linha["prep"];
-        echo "\nDose Esperada:  " . $linha["dose"];
-        echo "\tIngredientes:  " . "\t-"  . implode("quantidade") . " ". implode("id_ingrediente"). "\n";
-        echo "\nCategorias:  " . "\t-"  . implode("id_categoria"). "\n";
-        echo "\nReceita: ";
-        echo "\n ". $linha["descricao"];
-        echo "\n---------------------------------------------------------\n";
+    
+    $receita_atual = NULL;
+    $categoria = [];
+    $ingrediente = [];
+    $quantidade = [];
+
+    while ($linha = mysqli_fetch_assoc($resultado)){
+        $id = $linha["id_receita"];
+    
+        if($id != $receita_atual){
+            if($receita_atual != NULL){
+            echo "\t\nCategorias:\n";
+            echo "\t-" .  implode(" ", $categoria) . "\n";
+            echo "\t\nIngredientes:\n";
+            echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
+            }
+            echo "\n---------------------------------------------------------\n";
+            echo "\t\nID: " . $linha["id_receita"];
+            echo "\t\nTitulo: " . $linha["nome"];
+            echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
+            echo "\t\nDose Esperada: " . $linha["dose"];
+            echo "\t\nReceita: ";
+            echo "\n" . $linha["descricao"];
+            echo "\n---------------------------------------------------------\n";
+            $receita_atual = $id;
+            $categoria = [];
+            $ingrediente = [];
+            $quantidade = [];
+        }
+        $categoria[] = $linha["id_categoria"];
+        $ingrediente [] = $linha["id_ingrediente"];
+        $quantidade [] = $linha["quantidade"];
+            
+    }if ($receita_atual != NULL){
+        echo "\t\nCategorias:\n";
+        echo "\t-" .  implode(" ", $categoria) . "\n";
+        echo "\t\nIngredientes:\n";
+        echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
     }
     mysqli_query($con, $sql);
     echo "\n\nSuccesso: Receita Encontrada\n";
@@ -554,24 +582,50 @@ function procurarIngrediente($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        GROUP BY receitas.id_receita WHERE receita_ingrediente.id_ingrediente LIKE '%$ingrediente%'";
+        ORDER BY receitas.id_receita WHERE receita_ingrediente.id_ingrediente LIKE '%$ingrediente%'";
 
     $resultado = mysqli_query($con, $sql);
     if (mysqli_num_rows($resultado) == 0){
             echo "Erro: Receita Não Encontrada";
             return;
     }
-        while ($linha = mysqli_fetch_assoc($resultado)){
-        while ($linha = mysqli_fetch_assoc($resultado)){
-        echo "---------------------------------------------------------\n";
-        echo "\n[1] Titulo:  " . $linha["nome"];
-        echo "\n[2] Tempo de Preparação:  " . $linha["prep"];
-        echo "\n[3] Dose Esperada:  " . $linha["dose"];
-        echo "\t[4] Ingredientes:  " . "\t-"  . implode("quantidade") . " ". implode("id_ingrediente"). "\n";
-        echo "\n[5] Categorias:  " . "\t-"  . implode("id_categoria"). "\n";
-        echo "\nReceita: ";
-        echo "\n ". $linha["descricao"];
-        echo "\n---------------------------------------------------------\n";
+        $receita_atual = NULL;
+    $categoria = [];
+    $ingrediente = [];
+    $quantidade = [];
+
+    while ($linha = mysqli_fetch_assoc($resultado)){
+        $id = $linha["id_receita"];
+    
+        if($id != $receita_atual){
+            if($receita_atual != NULL){
+            echo "\t\nCategorias:\n";
+            echo "\t-" .  implode(" ", $categoria) . "\n";
+            echo "\t\nIngredientes:\n";
+            echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
+            }
+            echo "\n---------------------------------------------------------\n";
+            echo "\t\nID: " . $linha["id_receita"];
+            echo "\t\nTitulo: " . $linha["nome"];
+            echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
+            echo "\t\nDose Esperada: " . $linha["dose"];
+            echo "\t\nReceita: ";
+            echo "\n" . $linha["descricao"];
+            echo "\n---------------------------------------------------------\n";
+            $receita_atual = $id;
+            $categoria = [];
+            $ingrediente = [];
+            $quantidade = [];
+        }
+        $categoria[] = $linha["id_categoria"];
+        $ingrediente [] = $linha["id_ingrediente"];
+        $quantidade [] = $linha["quantidade"];
+            
+    }if ($receita_atual != NULL){
+        echo "\t\nCategorias:\n";
+        echo "\t-" .  implode(" ", $categoria) . "\n";
+        echo "\t\nIngredientes:\n";
+        echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
     }
     mysqli_query($con, $sql);
     echo "\n\nSuccesso: Receita Encontrada\n";
@@ -579,7 +633,6 @@ function procurarIngrediente($con, $voltar){
         if ($voltar){
             voltar();
         }
-    }
 }
 
 //procurar receitas por Titulo
@@ -596,24 +649,50 @@ function procurarTitulo($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        GROUP BY receitas.id_receita WHERE receitas.nome LIKE '%$nome%'";
+        ORDER BY receitas.id_receita WHERE receitas.nome LIKE '%$nome%'";
 
     $resultado = mysqli_query($con, $sql);
     if (mysqli_num_rows($resultado) == 0){
             echo "Erro: Receita Não Encontrada";
             return;
     }
-        while ($linha = mysqli_fetch_assoc($resultado)){
-        while ($linha = mysqli_fetch_assoc($resultado)){
-        echo "---------------------------------------------------------\n";
-        echo "\n[1] Titulo:  " . $linha["nome"];
-        echo "\n[2] Tempo de Preparação:  " . $linha["prep"];
-        echo "\n[3] Dose Esperada:  " . $linha["dose"];
-        echo "\t[4] Ingredientes:  " . "\t-"  . implode("quantidade") . " ". implode("id_ingrediente") . "\n";
-        echo "\n[5] Categorias:  " . "\t-"  . implode("id_categoria"). "\n";
-        echo "\nReceita: ";
-        echo "\n ". $linha["descricao"];
-        echo "\n---------------------------------------------------------\n";
+        $receita_atual = NULL;
+    $categoria = [];
+    $ingrediente = [];
+    $quantidade = [];
+
+    while ($linha = mysqli_fetch_assoc($resultado)){
+        $id = $linha["id_receita"];
+    
+        if($id != $receita_atual){
+            if($receita_atual != NULL){
+            echo "\t\nCategorias:\n";
+            echo "\t-" .  implode(" ", $categoria) . "\n";
+            echo "\t\nIngredientes:\n";
+            echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
+            }
+            echo "\n---------------------------------------------------------\n";
+            echo "\t\nID: " . $linha["id_receita"];
+            echo "\t\nTitulo: " . $linha["nome"];
+            echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
+            echo "\t\nDose Esperada: " . $linha["dose"];
+            echo "\t\nReceita: ";
+            echo "\n" . $linha["descricao"];
+            echo "\n---------------------------------------------------------\n";
+            $receita_atual = $id;
+            $categoria = [];
+            $ingrediente = [];
+            $quantidade = [];
+        }
+        $categoria[] = $linha["id_categoria"];
+        $ingrediente [] = $linha["id_ingrediente"];
+        $quantidade [] = $linha["quantidade"];
+            
+    }if ($receita_atual != NULL){
+        echo "\t\nCategorias:\n";
+        echo "\t-" .  implode(" ", $categoria) . "\n";
+        echo "\t\nIngredientes:\n";
+        echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
     }
     mysqli_query($con, $sql);
     echo "\n\nSuccesso: Receita Encontrada\n";
@@ -621,7 +700,6 @@ function procurarTitulo($con, $voltar){
         if ($voltar){
             voltar();
         }
-    }
 }
 
 //encerrar a conexão
