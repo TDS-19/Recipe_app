@@ -256,11 +256,8 @@ function seeReceitas($con, $voltar){
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
         GROUP BY receitas.id_receita";
         $resultado = mysqli_query($con, $sql);
-
-
-    $resultado = mysqli_query($con, $sql);
    
-    $receita_atual = null;
+    $receita_atual = NULL;
     $categoria = [];
     $ingrediente = [];
     $quantidade = [];
@@ -271,7 +268,7 @@ function seeReceitas($con, $voltar){
         if($id != $receita_atual ){
             if($receita_atual != NULL){
                 echo "\t\nCategorias:\n" . "\t-" .  implode($categoria) . "\n";
-                echo "\t\nIngredientes:\n" . "\t-" .  implode($quantidade) .  implode($ingrediente) . "\n";
+                echo "\t\nIngredientes:\n" . "\t-" .  implode($quantidade) . " " . implode($ingrediente) . "\n";
             }
             echo "\n---------------------------------------------------------\n";
             echo "\t\nID: " . $linha["id_receita"];
@@ -279,7 +276,7 @@ function seeReceitas($con, $voltar){
             echo "\t\nTempo de Preparação [HH:mm:ss]:  " . $linha["prep"];
             echo "\t\nDose Esperada: " . $linha["dose"];
             echo "\t\n\nReceita:\n\n";
-            echo "\n\t " . $linha["descricao"];
+            echo "\n " . $linha["descricao"];
             echo "\n";
             $receita_atual = $id;
             $categoria = [];
@@ -523,12 +520,13 @@ function procurarCategoria($con, $voltar){
     }
         while ($linha = mysqli_fetch_assoc($resultado)){
         echo "---------------------------------------------------------\n";
-        echo "\n[1] Titulo:  " . $linha["nome"];
-        echo "\n[2] Tempo de Preparação:  " . $linha["prep"];
-        echo "\n[3] Dose Esperada:  " . $linha["dose"];
-        echo "\t[4] Ingredientes:  " . $linha["id_ingrediente"] . $linha["quantidade"];
-        echo "\n[5] Categoria:  " . $linha["id_categoria"];
-        echo "\n[6] Receita:  " . $linha["descricao"];
+        echo "\n[Titulo:  " . $linha["nome"];
+        echo "\nTempo de Preparação:  " . $linha["prep"];
+        echo "\nDose Esperada:  " . $linha["dose"];
+        echo "\tIngredientes:  " . "\t-"  . implode("quantidade") . " ". implode("id_ingrediente"). "\n";
+        echo "\nCategorias:  " . "\t-"  . implode("id_categoria"). "\n";
+        echo "\nReceita: ";
+        echo "\n ". $linha["descricao"];
         echo "\n---------------------------------------------------------\n";
     }
     mysqli_query($con, $sql);
@@ -561,20 +559,23 @@ function procurarIngrediente($con, $voltar){
             return;
     }
         while ($linha = mysqli_fetch_assoc($resultado)){
+        while ($linha = mysqli_fetch_assoc($resultado)){
         echo "---------------------------------------------------------\n";
         echo "\n[1] Titulo:  " . $linha["nome"];
         echo "\n[2] Tempo de Preparação:  " . $linha["prep"];
         echo "\n[3] Dose Esperada:  " . $linha["dose"];
-        echo "\t[4] Ingredientes:  " . $linha["id_ingrediente"] . $linha["quantidade"];
-        echo "\n[5] Categoria:  " . $linha["id_categoria"];
-        echo "\n[6] Receita:  " . $linha["descricao"];
+        echo "\t[4] Ingredientes:  " . "\t-"  . implode("quantidade") . " ". implode("id_ingrediente"). "\n";
+        echo "\n[5] Categorias:  " . "\t-"  . implode("id_categoria"). "\n";
+        echo "\nReceita: ";
+        echo "\n ". $linha["descricao"];
         echo "\n---------------------------------------------------------\n";
     }
     mysqli_query($con, $sql);
     echo "\n\nSuccesso: Receita Encontrada\n";
 
-    if ($voltar){
-        voltar();
+        if ($voltar){
+            voltar();
+        }
     }
 }
 
@@ -600,20 +601,23 @@ function procurarTitulo($con, $voltar){
             return;
     }
         while ($linha = mysqli_fetch_assoc($resultado)){
+        while ($linha = mysqli_fetch_assoc($resultado)){
         echo "---------------------------------------------------------\n";
         echo "\n[1] Titulo:  " . $linha["nome"];
         echo "\n[2] Tempo de Preparação:  " . $linha["prep"];
         echo "\n[3] Dose Esperada:  " . $linha["dose"];
-        echo "\t[4] Ingredientes:  " . $linha["id_ingrediente"] . $linha["quantidade"];
-        echo "\n[5] Categoria:  " . $linha["id_categoria"];
-        echo "\n[6] Receita:  " . $linha["descricao"];
+        echo "\t[4] Ingredientes:  " . "\t-"  . implode("quantidade") . " ". implode("id_ingrediente") . "\n";
+        echo "\n[5] Categorias:  " . "\t-"  . implode("id_categoria"). "\n";
+        echo "\nReceita: ";
+        echo "\n ". $linha["descricao"];
         echo "\n---------------------------------------------------------\n";
     }
     mysqli_query($con, $sql);
     echo "\n\nSuccesso: Receita Encontrada\n";
 
-    if ($voltar){
-        voltar();
+        if ($voltar){
+            voltar();
+        }
     }
 }
 
