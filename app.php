@@ -252,7 +252,7 @@ function seeReceitas($con, $voltar){
         receita_ingrediente.quantidade,
         receita_categoria.id_categoria
         FROM receitas
-        INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
+        INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
         ORDER BY receitas.id_receita";
         $resultado = mysqli_query($con, $sql);
@@ -270,7 +270,8 @@ function seeReceitas($con, $voltar){
             echo "\t\nCategorias:\n";
             echo "\t-" .  implode(" ", $categoria) . "\n";
             echo "\t\nIngredientes:\n";
-            echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
+            echo "\t-" .  implode(" ",  $quantidade) . "\n";
+            echo " " .  implode(" ", $ingrediente) . "\n";
             }
             echo "\n---------------------------------------------------------\n";
             echo "\t\nID: " . $linha["id_receita"];
@@ -293,7 +294,8 @@ function seeReceitas($con, $voltar){
         echo "\t\nCategorias:\n";
         echo "\t-" .  implode(" ", $categoria) . "\n";
         echo "\t\nIngredientes:\n";
-        echo "\t-" .  implode(" ",  $quantidade) . "  " . implode(" ", $ingrediente) . "\n";
+        echo "\t-" .  implode(" ",  $quantidade) . "\n";
+        echo " " .  implode(" ", $ingrediente) . "\n";
     }
          
     if ($voltar){
@@ -340,6 +342,7 @@ function seeCategorias($con, $voltar){
 //atualizar receita existente // + Associar e Desassociar categorias
 function upReceita($con, $voltar){
     seeReceitas($con,false);
+    echo "\n---------------------------------------------------------\n";
         $id = readline("ID da Receita: ");
         $sql = "SELECT receitas.id_receita,
         receitas.nome,
@@ -349,10 +352,10 @@ function upReceita($con, $voltar){
         receita_ingrediente.id_ingrediente, 
         receita_ingrediente.quantidade,
         receita_categoria.id_categoria
-        FROM receitas WHERE id_receita = $id
+        FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        GROUP BY receitas.id_receita";
+        WHERE receitas.id_receita = $id";
         $resultado = mysqli_query($con, $sql);
         if (mysqli_num_rows($resultado) == 0){
             echo "Erro: Receita Não Encontrada";
@@ -363,37 +366,39 @@ function upReceita($con, $voltar){
         echo "\n[1] Titulo";
         echo "\n[2] Tempo de Preparação";
         echo "\n[3] Dose Esperada";
-        echo "\t[4] Ingredientes";
+        echo "\n[4] Ingredientes";
         echo "\n[5] Categoria";
         echo "\n[6] Receita";
-        echo "\n---------------------------------------------------------\n";
+        echo "\n\n---------------------------------------------------------\n\n\n";
          $edit = readline("Que secção deseja editar? ");
 
         Switch ($edit){
             case 1:
-                $novoNome = readline("Mudar Titulo: ");
+                $novoNome = readline("\nMudar Titulo: ");
                 $sql = "UPDATE receitas SET nome = '$novoNome' WHERE id_receita = $id";
                 break;
             case 2:
-                $novoPrep = readline("Mudar Tempo de Preparação: ");
+                $novoPrep = readline("\nMudar Tempo de Preparação: ");
                 $sql = "UPDATE receitas SET prep = '$novoPrep' WHERE id_receita = $id";
                 break;
             case 3:
-                $novaDose = readline("Mudar Dose Esperada: ");
+                $novaDose = readline("\nMudar Dose Esperada: ");
                 $sql = "UPDATE receitas SET dose = '$novaDose' WHERE id_receita = $id";
                 break;
             case 4: //Associar e Desassociar Ingredientes/quantidades
                 seeIngredientes($con,false);
-                echo "[1] - Nova Categoria";
-                echo "[2] - Eliminar Categoria";
-                $input = readline("");
+                echo "\n---------------------------------------------------------\n";
+                echo "\n[1] - Novo Ingrediente";
+                echo "\n[2] - Eliminar Ingrediente\n";
+                echo "\n---------------------------------------------------------\n";
+                $input = readline("R: ");
                     if($input =="1"){
-                        $novoIngrediente = readline("Novo Ingrediente: ");
-                        $sql = "UPDATE receita_ingrediente ADD id_ingrediente = '$novoIngrediente' WHERE id_receita = $id";
-                        $novaQuantidade = readline("Nova Quantidade: ");
-                        $sql = "UPDATE receita_ingrediente ADD quantidade = '$novaQuantidade' WHERE id_receita = $id";
+                        $novoIngrediente = readline("\nNovo Ingrediente: ");
+                        $sql = "INSERT INTO receita_ingrediente (id_ingrediente) VALUE ('$novoIngrediente') WHERE id_receita = $id";
+                        $novaQuantidade = readline("\nNova Quantidade: ");
+                        $sql = "INSERT INTO  receita_ingrediente (quantidade) VALUE ('$novaQuantidade') WHERE id_receita = $id";
                     }else if ($input == "2"){
-                        $delete = readline("ID do Ingrediente que deseja remover: ");
+                        $delete = readline("\nID do Ingrediente que deseja remover: ");
                         $sql = "DELETE id_ingrediente, quantidade WHERE id_ingrediente = $delete
                         FROM receita_ingrediente WHERE id_receita = $id";
                     }else{
@@ -402,14 +407,16 @@ function upReceita($con, $voltar){
                 break;
             case 5: //Associar e Desassociar Categorias
                 seeCategorias($con,false);
-                echo "[1] - Nova Categoria";
-                echo "[2] - Eliminar Categoria";
-                $input = readline("");
+                echo "\n---------------------------------------------------------\n";
+                echo "\n[1] - Nova Categoria";
+                echo "\n[2] - Eliminar Categoria\n";
+                echo "\n---------------------------------------------------------\n";
+                $input = readline("R: ");
                     if ($input == "1"){
-                        $novaCategoria = readline("Nova Categoria: ");
-                        $sql = "UPDATE receita_categoria ADD id_categoria = '$novaCategoria' WHERE id_receita = $id";
+                        $novaCategoria = readline("\nNova Categoria: ");
+                        $sql = "INSERT INTO  receita_categoria (id_categoria) VALUE ('$novaCategoria') WHERE id_receita = $id";
                     }else if ($input == "2"){
-                        $delete = readline("ID da Categoria que deseja remover: ");
+                        $delete = readline("\nID da Categoria que deseja remover: ");
                         $sql = "DELETE id_categoria WHERE id_categoria = $delete
                         FROM receita_categoria WHERE id_receita = $id";
                     }else{
@@ -417,7 +424,7 @@ function upReceita($con, $voltar){
                     }
                 break;
             case 6:
-                $novaDescricao = readline("Mudar Receita: ");
+                $novaDescricao = readline("\nMudar Receita: ");
                 $sql = "UPDATE receitas SET descricao = '$novaDescricao' WHERE id_receita = $id";
                 break;
             default:
@@ -442,7 +449,8 @@ function upReceita($con, $voltar){
 //apagar receita 
 function delReceita($con){
     seeReceitas($con, false);
-    $id = readline("ID da Receita que deseja remover: ");
+    echo "\n---------------------------------------------------------\n";
+    $id = readline("\nID da Receita que deseja remover: ");
     $sql = "SELECT id_receita FROM receitas WHERE id_receita = $id";
     $verificacao = mysqli_query($con, $sql);
     if (mysqli_num_rows ($verificacao) == 0){
@@ -462,7 +470,8 @@ function delReceita($con){
 //apagar categoria
 function delCategoria($con){
     seeCategorias($con, false);
-    $id = readline("ID da Categoria que deseja remover: ");
+    echo "\n---------------------------------------------------------\n";
+    $id = readline("\nID da Categoria que deseja remover: ");
     $sql = "SELECT id_categoria FROM categorias WHERE id_categoria = $id";
     $verificacao = mysqli_query($con, $sql);
     if (mysqli_num_rows ($verificacao) == 0){
@@ -480,7 +489,8 @@ function delCategoria($con){
 //apagar ingredientes
 function delIngrediente($con){
     seeIngredientes($con, false);
-    $id = readline("ID da Ingrediente que deseja remover: ");
+    echo "\n---------------------------------------------------------\n";
+    $id = readline("\nID da Ingrediente que deseja remover: ");
     $sql = "SELECT id_ingrediente FROM ingredientes WHERE id_ingrediente = $id";
     $verificacao = mysqli_query($con, $sql);
     if (mysqli_num_rows ($verificacao) == 0){
@@ -514,7 +524,7 @@ function procurarCategoria($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        ORDER BY receitas.id_receita WHERE receita_categoria.id_categoria LIKE '%$categoria%'";
+        WHERE receita_categoria.id_categoria LIKE '%$categoria%'";
 
     $resultado = mysqli_query($con, $sql);
     if (mysqli_num_rows($resultado) == 0){
@@ -582,7 +592,7 @@ function procurarIngrediente($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        ORDER BY receitas.id_receita WHERE receita_ingrediente.id_ingrediente LIKE '%$ingrediente%'";
+        WHERE receita_ingrediente.id_ingrediente LIKE '%$ingrediente%'";
 
     $resultado = mysqli_query($con, $sql);
     if (mysqli_num_rows($resultado) == 0){
@@ -649,7 +659,7 @@ function procurarTitulo($con, $voltar){
         FROM receitas
         INNER JOIN receita_ingrediente ON receitas.id_receita = receita_ingrediente.id_receita 
         INNER JOIN receita_categoria ON receitas.id_receita = receita_categoria.id_receita
-        ORDER BY receitas.id_receita WHERE receitas.nome LIKE '%$nome%'";
+        WHERE receitas.nome LIKE '%$nome%'";
 
     $resultado = mysqli_query($con, $sql);
     if (mysqli_num_rows($resultado) == 0){
