@@ -398,8 +398,7 @@ function upReceita($con, $voltar){
                         $sql = "INSERT INTO receita_ingrediente (id_receita, id_ingrediente, quantidade) VALUE ('$id','$novoIngrediente','$novaQuantidade')";
                     }else if ($input == "2"){
                         $delete = readline("\nID do Ingrediente que deseja remover: ");
-                        $sql = "DELETE id_ingrediente, quantidade WHERE id_ingrediente = $delete
-                        FROM receita_ingrediente WHERE id_receita = $id";
+                        $sql = "DELETE FROM receita_ingrediente WHERE id_ingrediente = '$delete' ";
                     }else{
                         echo "Erro: Opção Menu Inválida";
                     }
@@ -416,8 +415,7 @@ function upReceita($con, $voltar){
                         $sql = "INSERT INTO  receita_categoria (id_receita, id_categoria) VALUE ('$id', '$novaCategoria')";
                     }else if ($input == "2"){
                         $delete = readline("\nID da Categoria que deseja remover: ");
-                        $sql = "DELETE id_categoria WHERE id_categoria = $delete
-                        FROM receita_categoria WHERE id_receita = $id";
+                        $sql = "DELETE FROM receita_categoria WHERE id_categoria = '$delete'";
                     }else{
                         echo "Erro: Opção Menu Inválida";
                     }
