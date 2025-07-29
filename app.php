@@ -394,9 +394,8 @@ function upReceita($con, $voltar){
                 $input = readline("R: ");
                     if($input =="1"){
                         $novoIngrediente = readline("\nNovo Ingrediente: ");
-                        $sql = "INSERT INTO receita_ingrediente (id_ingrediente) VALUE ('$novoIngrediente') WHERE id_receita = $id";
                         $novaQuantidade = readline("\nNova Quantidade: ");
-                        $sql = "INSERT INTO  receita_ingrediente (quantidade) VALUE ('$novaQuantidade') WHERE id_receita = $id";
+                        $sql = "INSERT INTO receita_ingrediente (id_ingrediente, quantidade) VALUE ('$novoIngrediente','$novaQuantidade')";
                     }else if ($input == "2"){
                         $delete = readline("\nID do Ingrediente que deseja remover: ");
                         $sql = "DELETE id_ingrediente, quantidade WHERE id_ingrediente = $delete
@@ -414,7 +413,7 @@ function upReceita($con, $voltar){
                 $input = readline("R: ");
                     if ($input == "1"){
                         $novaCategoria = readline("\nNova Categoria: ");
-                        $sql = "INSERT INTO  receita_categoria (id_categoria) VALUE ('$novaCategoria') WHERE id_receita = $id";
+                        $sql = "INSERT INTO  receita_categoria (id_categoria) VALUE ('$novaCategoria')";
                     }else if ($input == "2"){
                         $delete = readline("\nID da Categoria que deseja remover: ");
                         $sql = "DELETE id_categoria WHERE id_categoria = $delete
